@@ -2,11 +2,14 @@
 
 # 🏝️ HH Goa 2026 — Frame & ID Card Generator
 
-**Turn your photo into a branded HH Goa 2026 graphic in seconds.**
+**Turn your photo into a branded HH Goa 2026 graphic in seconds.**  
 No login. No signup. No server. Pure browser magic.
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20Now-00E5C9?style=for-the-badge&logo=vercel&logoColor=black)](https://hh-goa-2026-generator.vercel.app)
-[![Made with](https://img.shields.io/badge/Made%20with-Vanilla%20JS-E91490?style=for-the-badge&logo=javascript&logoColor=white)](https://github.com/aaryanbangale/hh-goa-2026-generator)
+### 🚀 **[LIVE DEMO — CLICK TO TRY APP](https://hh-goa-2026-generator-rho.vercel.app)**
+👉 **`https://hh-goa-2026-generator-rho.vercel.app`**
+
+[![Live Demo](https://img.shields.io/badge/🚀%20Live%20Demo-https%3A%2F%2Fhh--goa--2026--generator--rho.vercel.app-00E5C9?style=for-the-badge&logo=vercel&logoColor=black)](https://hh-goa-2026-generator-rho.vercel.app)
+[![Made with](https://img.shields.io/badge/Made%20with-Vanilla%20JS-E91490?style=for-the-badge&logo=javascript&logoColor=white)](https://github.com/aaryanbangale2306/Frame-Generator-HH-Goa)
 [![License](https://img.shields.io/badge/License-MIT-EDD9B0?style=for-the-badge)](LICENSE)
 
 </div>
