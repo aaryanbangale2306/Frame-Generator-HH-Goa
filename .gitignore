@@ -1,0 +1,16 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Vercel
+.vercel/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+*.suo
+*.user
