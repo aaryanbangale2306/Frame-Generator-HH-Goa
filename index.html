@@ -50,11 +50,11 @@
     <div class="step">
       <div class="step-head"><span class="step-num">01</span><h2>Format</h2></div>
       <div class="format-toggle" role="tablist" aria-label="Choose format">
-        <button class="format-btn active" data-format="frame" role="tab" aria-selected="true">
+        <button class="format-btn" data-format="frame" role="tab" aria-selected="false">
           <span class="format-btn-title">PFP Frame</span>
           <span class="format-btn-sub">Circular overlay for X</span>
         </button>
-        <button class="format-btn" data-format="card" role="tab" aria-selected="false">
+        <button class="format-btn active" data-format="card" role="tab" aria-selected="true">
           <span class="format-btn-title">Builder Badge</span>
           <span class="format-btn-sub">Name + role card</span>
         </button>
@@ -83,7 +83,7 @@
       <div id="cropSection" class="crop-section" hidden>
         <div class="crop-stage">
           <canvas id="cropCanvas" width="640" height="640" aria-label="Drag to reposition your photo"></canvas>
-          <div id="cropMaskFrame" class="crop-mask crop-mask--circle"></div>
+          <div id="cropMaskFrame" class="crop-mask crop-mask--square"></div>
         </div>
         <div class="crop-controls">
           <label class="zoom-label" for="zoomSlider">
@@ -97,15 +97,15 @@
       </div>
     </div>
 
-    <div class="step" id="fieldsStep" hidden>
+    <div class="step" id="fieldsStep">
       <div class="step-head"><span class="step-num">03</span><h2>Builder details</h2></div>
       <label class="field">
         <span>Name</span>
-        <input type="text" id="nameInput" maxlength="28" placeholder="e.g. Aaryan Bangale" autocomplete="name" />
+        <input type="text" id="nameInput" maxlength="28" value="Arham Boonlia" placeholder="e.g. Arham Boonlia" autocomplete="name" />
       </label>
       <label class="field">
         <span>Stack / role</span>
-        <input type="text" id="roleInput" maxlength="30" placeholder="e.g. Full-stack, AI/ML, Design" />
+        <input type="text" id="roleInput" maxlength="30" value="Full-stack" placeholder="e.g. Full-stack, AI/ML, Design" />
       </label>
       <div class="field">
         <span>Builder title <button id="shuffleTitleBtn" class="link-btn link-btn--inline" type="button" aria-label="Generate another title">shuffle ↻</button></span>
