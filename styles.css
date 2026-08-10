@@ -4,32 +4,33 @@
    Display: Space Grotesk · Body: Inter · Data/mono: JetBrains Mono
    ============================================================ */
 :root{
-  /* Core semantic tokens */
-  --ink:        #060D18;
-  --deep-teal:  #0B2D35;
-  --aqua:       #00E5C9;
-  --magenta:    #E91490;
-  --sand:       #EDD9B0;
+  /* Core semantic tokens matching template */
+  --ink:        #052e13;   /* Deep forest green background */
+  --deep-teal:  #0b4c22;   /* Vibrant green card surface */
+  --aqua:       #ffd000;   /* Bright yellow / gold accent */
+  --magenta:    #e9148c;   /* Hot pink badge/pill accent */
+  --sand:       #ffe500;   /* Vibrant yellow title typography */
 
   /* Derived shades */
   --ink-raised: var(--deep-teal);
-  --ink-line:   rgba(0,229,201,.14);
+  --ink-line:   rgba(255,208,0,.22);
   --coral:      var(--magenta);
   --gold:       var(--sand);
   --teal:       var(--aqua);
-  --violet:     #0E1E3A;
+  --violet:     #052e13;
   --cream:      var(--sand);
   --text-hi:    var(--sand);
-  --text-mid:   rgba(237,217,176,.65);
-  --text-dim:   rgba(237,217,176,.38);
+  --text-mid:   rgba(255,229,0,.75);
+  --text-dim:   rgba(255,229,0,.5);
 
-  --grad-horizon: linear-gradient(120deg, #0E1E3A 0%, var(--magenta) 50%, var(--aqua) 100%);
+  --grad-horizon: linear-gradient(120deg, #0b4c22 0%, var(--magenta) 50%, var(--aqua) 100%);
   --grad-ring:    linear-gradient(135deg, var(--magenta), var(--sand) 45%, var(--aqua) 100%);
   --grad-cta:     linear-gradient(120deg, var(--magenta) 0%, var(--aqua) 100%);
 
   --radius-lg: 22px;
   --radius-md: 14px;
   --radius-sm: 9px;
+  --font-serif:   'DM Serif Display', Georgia, serif;
   --font-display: 'Space Grotesk', system-ui, sans-serif;
   --font-body:    'Inter', system-ui, sans-serif;
   --font-mono:    'JetBrains Mono', ui-monospace, monospace;

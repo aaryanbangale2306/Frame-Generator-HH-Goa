@@ -22,18 +22,19 @@
 
   // ---------- Theme tokens (keep in sync with styles.css :root) ----------
   const T = {
-    ink:       '#060D18',   // background
-    inkRaised: '#0B2D35',   // deep-teal — cards/sections
-    inkLine:   'rgba(0,229,201,.14)',
-    aqua:      '#00E5C9',   // primary CTA / accent
-    magenta:   '#E91490',   // secondary highlights / badges
-    sand:      '#EDD9B0',   // text on dark / light surfaces
-    violet:    '#0E1E3A',   // deep header tones
-    // legacy aliases kept so canvas code referencing these still works
-    coral:  '#E91490',  // → magenta
-    gold:   '#EDD9B0',  // → sand
-    teal:   '#00E5C9',  // → aqua
-    cream:  '#EDD9B0',  // → sand
+    ink:       '#08401b',   // deep forest green background
+    inkRaised: '#0b5625',   // vibrant green card container
+    inkLine:   'rgba(255,208,0,.22)',
+    aqua:      '#ffd000',   // bright yellow accent
+    magenta:   '#e9148c',   // hot pink accent
+    sand:      '#ffe500',   // bright yellow title typography
+    violet:    '#052e13',   // header green
+    coral:     '#e9148c',   // hot pink
+    gold:      '#ffe500',   // yellow typography
+    teal:      '#ffd000',   // bright yellow
+    cream:     '#ffe500',   // bright yellow
+    greenBg:   '#0d5e2a',   // forest green background fill
+    limeText:  '#8ec92a',   // muted lime green subtext
   };
 
   // ---------- Mobile helper ----------
@@ -550,6 +551,37 @@
     return size;
   }
 
+  function drawStripedTape(ctx, x, y, w, h, color1, color2, stripeW = 22) {
+    ctx.save();
+    ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+    ctx.fillStyle = color1; ctx.fillRect(x, y, w, h);
+    ctx.fillStyle = color2;
+    for (let cx = -h * 2; cx < w + h * 2; cx += stripeW * 2) {
+      ctx.beginPath();
+      ctx.moveTo(cx, y + h);
+      ctx.lineTo(cx + stripeW, y + h);
+      ctx.lineTo(cx + stripeW + h, y);
+      ctx.lineTo(cx + h, y);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawDuctTape(ctx, x, y, w, h, angle = -0.1, color = '#e5c414') {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    ctx.globalAlpha = 0.88;
+    ctx.fillStyle = color;
+    roundRect(ctx, -w / 2, -h / 2, w, h, 3);
+    ctx.fill();
+    // texture line
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(-w / 2 + 4, 0); ctx.lineTo(w / 2 - 4, 0); ctx.stroke();
+    ctx.restore();
+  }
+
   function drawBarcode(ctx, x, y, w, h, seed) {
     // Deterministic barcode using LCG seeded by builder info
     let rng = seed | 0;
@@ -559,7 +591,7 @@
     while (cx < x + w - 2) {
       const bw = next() > 0.45 ? 5 : 2.5;
       const gap = next() > 0.5 ? 4 : 2;
-      ctx.fillStyle = cx < x + w * 0.85 ? 'rgba(0,229,201,0.85)' : 'rgba(0,229,201,0.35)';
+      ctx.fillStyle = cx < x + w * 0.85 ? '#ffe500' : 'rgba(255,229,0,0.45)';
       ctx.fillRect(cx, y, bw, h);
       cx += bw + gap;
     }
@@ -609,220 +641,231 @@
     ctx.restore();
 
     arcText(ctx, 'HH GOA 2026', cx, cy, r * 1.32, {
-      font: `700 ${Math.round(size * 0.052)}px "Space Grotesk", "Arial Black", system-ui, sans-serif`,
+      font: `700 ${Math.round(size * 0.052)}px "DM Serif Display", "Space Grotesk", serif`,
       color: T.sand, startAngle: Math.PI * 1.18, sweep: Math.PI * 0.64,
     });
 
     pill(ctx, cx, cy + r + size * 0.075, '#FrameInGoa', {
       font: `600 ${Math.round(size * 0.024)}px "JetBrains Mono", ui-monospace, "Courier New", monospace`,
-      bg: T.ink, fg: T.aqua, borderColor: 'rgba(0,229,201,.5)',
+      bg: '#000000', fg: '#ffe500', borderColor: 'rgba(255,229,0,.6)',
     });
   }
 
   // ============================================================
-  // FORMAT B — Official Builder Pass (1080×1350, HH Goa 2026 edition)
+  // FORMAT B — Official Builder Pass (1080×1350, HH Goa 2026 template edition)
   // ============================================================
   function renderCard(ctx, w, h) {
-    const pad = Math.round(w * 0.072);
+    const pad = Math.round(w * 0.068);
+    const stripHeight = 24;
 
-    // ── Background ──
-    ctx.fillStyle = T.ink;
-    ctx.fillRect(0, 0, w, h);
+    // ── 1. Top & Bottom Striped Tape Borders ──
+    drawStripedTape(ctx, 0, 0, w, stripHeight, '#e9148c', '#ffd000', 16);
+    drawStripedTape(ctx, 0, h - stripHeight, w, stripHeight, '#e9148c', '#ffd000', 16);
 
-    // Subtle dot-grid texture (aqua dots at very low opacity)
+    // ── 2. Background Fill & Textured Vignette ──
     ctx.save();
-    ctx.globalAlpha = 0.045;
-    for (let gx = 30; gx < w; gx += 42) {
-      for (let gy = 30; gy < h; gy += 42) {
-        ctx.fillStyle = T.aqua;
-        ctx.beginPath(); ctx.arc(gx, gy, 1.6, 0, Math.PI * 2); ctx.fill();
-      }
-    }
+    ctx.fillStyle = '#09451e';
+    ctx.fillRect(0, stripHeight, w, h - stripHeight * 2);
+
+    // Radial vignette
+    const bgGlow = ctx.createRadialGradient(w * 0.5, h * 0.45, 100, w * 0.5, h * 0.45, w * 0.75);
+    bgGlow.addColorStop(0, '#0d5c29');
+    bgGlow.addColorStop(1, '#063316');
+    ctx.fillStyle = bgGlow;
+    ctx.fillRect(0, stripHeight, w, h - stripHeight * 2);
+
+    // Watermark "26" on right background
+    ctx.font = '900 460px "Space Grotesk", sans-serif';
+    ctx.fillStyle = 'rgba(0,0,0,0.09)';
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ctx.fillText('26', w - 10, h * 0.52);
     ctx.restore();
 
-    // Ambient glow corners (magenta top-left, aqua bottom-right)
-    const gl1 = ctx.createRadialGradient(0, 0, 0, 0, 0, w * 0.6);
-    gl1.addColorStop(0, 'rgba(233,20,144,0.25)'); gl1.addColorStop(1, 'rgba(6,13,24,0)');
-    ctx.fillStyle = gl1; ctx.fillRect(0, 0, w, h);
-    const gl2 = ctx.createRadialGradient(w, h, 0, w, h, w * 0.7);
-    gl2.addColorStop(0, 'rgba(0,229,201,0.16)'); gl2.addColorStop(1, 'rgba(6,13,24,0)');
-    ctx.fillStyle = gl2; ctx.fillRect(0, 0, w, h);
-
-    const name  = state.name.trim()  || 'Your Name Here';
-    const role  = state.role.trim()  || 'Add Stack / Role';
+    const name  = state.name.trim()  || 'Arham Boonlia';
+    const role  = state.role.trim()  || 'Full-stack';
     const bSeed = hashStr(name + role);
     const badgeNo = String(bSeed % 9000 + 1000);
 
-    // ── HEADER gradient strip ──
-    const headerH = Math.round(h * 0.185);
-    ctx.save();
-    ctx.beginPath(); ctx.rect(0, 0, w, headerH); ctx.clip();
-    paintHorizonBackground(ctx, w, headerH * 1.8);
-    // dark wave at bottom of header
-    paintWaveBand(ctx, w, headerH * 1.8, headerH * 1.1, T.ink, 0.6);
-    ctx.restore();
-
-    // Header top border line (magenta→aqua)
-    const hbg = ctx.createLinearGradient(0, 0, w, 0);
-    hbg.addColorStop(0, T.violet); hbg.addColorStop(0.35, T.magenta);
-    hbg.addColorStop(0.7, T.sand); hbg.addColorStop(1, T.aqua);
-    ctx.fillStyle = hbg; ctx.fillRect(0, 0, w, 7);
+    // ── 3. HEADER ──
+    const headerY = stripHeight + 48;
 
     // BUILDER #XXXX badge — top right
     ctx.save();
     ctx.font = `700 ${Math.round(w * 0.024)}px "JetBrains Mono", ui-monospace, monospace`;
     const bdgText = `BUILDER #${badgeNo}`;
-    const bdgW = ctx.measureText(bdgText).width + 28;
-    const bdgH = 40;
-    const bdgX = w - pad - bdgW, bdgY = Math.round(headerH * 0.16);
-    roundRect(ctx, bdgX, bdgY, bdgW, bdgH, bdgH / 2);
-    ctx.fillStyle = T.aqua; ctx.fill();
-    ctx.fillStyle = T.ink;
+    const bdgW = ctx.measureText(bdgText).width + 26;
+    const bdgH = 38;
+    const bdgX = w - pad - bdgW, bdgY = headerY - 14;
+    roundRect(ctx, bdgX, bdgY, bdgW, bdgH, 6);
+    ctx.fillStyle = '#ffd000'; ctx.fill();
+    ctx.fillStyle = '#000000';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText(bdgText, bdgX + bdgW / 2, bdgY + bdgH / 2);
+    ctx.fillText(bdgText, bdgX + bdgW / 2, bdgY + bdgH / 2 + 1);
     ctx.restore();
 
-    // Main wordmark: "HH" + "गोवा" + "2026"
-    const titleY = Math.round(headerH * 0.72);
+    // Title: "HACKER" + "गोवा" + "HOUSE"
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    ctx.font = `900 ${Math.round(w * 0.098)}px "Space Grotesk", "Arial Black", system-ui, sans-serif`;
-    ctx.fillStyle = T.cream;
-    const hhW = ctx.measureText('HACKER ').width;
-    ctx.fillText('HACKER ', pad, titleY);
-    ctx.fillStyle = T.gold;
+    ctx.font = `900 ${Math.round(w * 0.105)}px "DM Serif Display", "Space Grotesk", Georgia, serif`;
+    ctx.fillStyle = '#ffe500';
+    const hhW = ctx.measureText('HACKER').width;
+    ctx.fillText('HACKER', pad, headerY + 50);
+
+    ctx.font = `900 ${Math.round(w * 0.10)}px system-ui, "Arial Black", sans-serif`;
+    ctx.fillStyle = '#e9148c';
     const goaW = ctx.measureText('गोवा').width;
-    ctx.fillText('गोवा', pad + hhW, titleY);
-    ctx.fillStyle = T.coral;
-    ctx.fillText(' HOUSE', pad + hhW + goaW, titleY);
+    ctx.fillText('गोवा', pad + hhW + 4, headerY + 50);
 
-    // Date line
-    ctx.font = `500 ${Math.round(w * 0.025)}px "JetBrains Mono", ui-monospace, monospace`;
-    ctx.fillStyle = 'rgba(11,18,32,0.65)';
-    ctx.fillText('GOA, INDIA  ·  28 – 31 OCT 2026', pad, Math.round(headerH * 0.92));
+    ctx.font = `900 ${Math.round(w * 0.105)}px "DM Serif Display", "Space Grotesk", Georgia, serif`;
+    ctx.fillStyle = '#ffe500';
+    ctx.fillText('HOUSE', pad + hhW + goaW + 10, headerY + 50);
 
-    // ── PHOTO SECTION ──
-    const photoTopY = headerH + Math.round(h * 0.02);
-    const photoH    = Math.round(h * 0.44);
+    // Subtitle line
+    ctx.font = `600 ${Math.round(w * 0.023)}px "JetBrains Mono", ui-monospace, monospace`;
+    ctx.fillStyle = '#8ec92a';
+    ctx.fillText('GOA, INDIA  ·  28 - 31 OCT 2026', pad, headerY + 86);
+
+    // ── 4. PHOTO SECTION (Tilted Frame with Tape) ──
+    const photoTopY = headerY + 110;
+    const photoH    = Math.round(h * 0.43);
     const photoW    = w - pad * 2;
-    const photoR    = 18;
 
-    // Photo clip & draw
     ctx.save();
-    roundRect(ctx, pad, photoTopY, photoW, photoH, photoR);
+    // Rotate photo box slightly (-1.5 deg)
+    const photoCx = pad + photoW / 2;
+    const photoCy = photoTopY + photoH / 2;
+    ctx.translate(photoCx, photoCy);
+    ctx.rotate(-1.5 * Math.PI / 180);
+
+    // Draw white photo card container background & border
+    ctx.fillStyle = '#ffffff';
+    roundRect(ctx, -photoW / 2 - 6, -photoH / 2 - 6, photoW + 12, photoH + 12, 10);
+    ctx.fill();
+
+    // Clip & draw photo inside
+    ctx.save();
+    roundRect(ctx, -photoW / 2, -photoH / 2, photoW, photoH, 6);
     ctx.clip();
     if (state.img) {
-      drawCoverImage(ctx, state.img, pad, photoTopY, photoW, photoH, state.zoom, state.panX, state.panY);
+      drawCoverImage(ctx, state.img, -photoW / 2, -photoH / 2, photoW, photoH, state.zoom, state.panX, state.panY);
     } else {
-      const ig = ctx.createLinearGradient(pad, photoTopY, pad + photoW, photoTopY + photoH);
-      ig.addColorStop(0, T.violet); ig.addColorStop(1, T.coral);
-      ctx.fillStyle = ig; ctx.fillRect(pad, photoTopY, photoW, photoH);
+      const ig = ctx.createLinearGradient(-photoW / 2, -photoH / 2, photoW / 2, photoH / 2);
+      ig.addColorStop(0, '#0b5c27'); ig.addColorStop(1, '#e9148c');
+      ctx.fillStyle = ig; ctx.fillRect(-photoW / 2, -photoH / 2, photoW, photoH);
     }
     ctx.restore();
 
-    // Photo frame border (gradient)
-    roundRect(ctx, pad, photoTopY, photoW, photoH, photoR);
-    const pbg = ctx.createLinearGradient(pad, photoTopY, pad + photoW, photoTopY + photoH);
-    pbg.addColorStop(0, T.coral); pbg.addColorStop(0.5, T.gold); pbg.addColorStop(1, T.teal);
-    ctx.lineWidth = 4; ctx.strokeStyle = pbg; ctx.stroke();
+    // Photo corner brackets (Red/Pink viewfinder marks on top-right & bottom-right)
+    drawViewfinderCorners(ctx, -photoW / 2, -photoH / 2, photoW, 36, '#e9148c', photoH);
 
-    // Viewfinder corner marks on photo
-    drawViewfinderCorners(ctx, pad, photoTopY, photoW, 44, T.teal, photoH);
+    // Yellow tape on top-left corner
+    drawDuctTape(ctx, -photoW / 2 + 50, -photoH / 2 + 10, 110, 32, -0.22, '#e5c414');
 
-    // Builder-title overlay pill on photo
-    const builderTitle = (state.name.trim() || state.role.trim()) ? generateBuilderTitle() : '"The Undecided"';
+    // Builder title overlay pill on bottom left of photo
+    const builderTitle = (state.name.trim() || state.role.trim()) ? generateBuilderTitle() : 'Console.log Archaeologist';
     const overlayLabel = `"${builderTitle}"`;
     ctx.save();
-    ctx.font = `italic 700 ${Math.round(w * 0.034)}px "Space Grotesk", system-ui, sans-serif`;
+    ctx.font = `italic 700 ${Math.round(w * 0.033)}px "Space Grotesk", system-ui, sans-serif`;
     const olW = ctx.measureText(overlayLabel).width + 36;
-    const olH = 56;
-    const olX = pad + 24;
-    const olY = photoTopY + photoH - olH - 24;
-    roundRect(ctx, olX, olY, olW, olH, olH / 2);
-    const olg = ctx.createLinearGradient(olX, 0, olX + olW, 0);
-    olg.addColorStop(0, T.coral); olg.addColorStop(1, T.gold);
-    ctx.fillStyle = olg; ctx.fill();
-    ctx.fillStyle = T.ink;
-    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    ctx.fillText(overlayLabel, olX + 18, olY + olH / 2);
+    const olH = 54;
+    const olX = -photoW / 2 + 20;
+    const olY = photoH / 2 - olH - 18;
+    
+    ctx.translate(olX + olW / 2, olY + olH / 2);
+    ctx.rotate(-1.2 * Math.PI / 180);
+
+    roundRect(ctx, -olW / 2, -olH / 2, olW, olH, 10);
+    ctx.fillStyle = '#e9148c'; ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(overlayLabel, 0, 1);
+
+    // Small tape accent on pill edge
+    drawDuctTape(ctx, olW / 2 - 10, -olH / 2 + 5, 45, 18, 0.3, '#e9148c');
     ctx.restore();
 
-    // ── BOTTOM CONTENT ──
-    let y = photoTopY + photoH + Math.round(h * 0.045);
+    ctx.restore(); // restore photo rotation transform
 
-    // Name (left-aligned, large, gold→coral gradient) — full width
+    // ── 5. NAME & TAGLINE ──
+    let y = photoTopY + photoH + 54;
+
+    // Name (large yellow serif typography)
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    const nameFont = `700 {size}px "Space Grotesk", "Arial Black", system-ui, sans-serif`;
-    const nameSize = fitText(ctx, name, w - pad * 2, w * 0.084, nameFont, 30);
+    const nameFont = `700 {size}px "DM Serif Display", Georgia, serif`;
+    const nameSize = fitText(ctx, name, w - pad * 2, w * 0.092, nameFont, 36);
     ctx.font = nameFont.replace('{size}', nameSize);
-    const ng = ctx.createLinearGradient(pad, 0, pad + w * 0.75, 0);
-    ng.addColorStop(0, T.gold); ng.addColorStop(1, T.coral);
-    ctx.fillStyle = ng;
+    ctx.fillStyle = '#ffe500';
     ctx.fillText(name, pad, y);
 
     y += Math.round(h * 0.038);
 
     // Tagline / role sub-text (left side)
-    const tagline = role !== 'HH GOA BUILDER' ? generateTagline() : 'BUILDING THE NEXT BIG THING IN GOA';
+    const tagline = role !== 'Full-stack' ? generateTagline() : 'BACKEND BY DAY, FRONTEND BY 3AM';
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    let tSize = Math.round(w * 0.025);
-    ctx.font = `600 ${tSize}px "JetBrains Mono", ui-monospace, monospace`;
+    let tSize = Math.round(w * 0.026);
+    ctx.font = `700 ${tSize}px "JetBrains Mono", ui-monospace, monospace`;
     while (ctx.measureText(tagline).width > w * 0.56 && tSize > 15) {
       tSize -= 1;
-      ctx.font = `600 ${tSize}px "JetBrains Mono", ui-monospace, monospace`;
+      ctx.font = `700 ${tSize}px "JetBrains Mono", ui-monospace, monospace`;
     }
-    ctx.fillStyle = 'rgba(185,194,214,0.85)';
+    ctx.fillStyle = '#ffffff';
     ctx.fillText(tagline, pad, y);
 
-    // Status block (right side, same row as tagline)
+    // Status block & Barcode (right side)
     ctx.save();
     ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
-    ctx.font = `700 ${Math.round(w * 0.022)}px "JetBrains Mono", ui-monospace, monospace`;
-    ctx.fillStyle = T.teal;
+    ctx.font = `700 ${Math.round(w * 0.021)}px "JetBrains Mono", ui-monospace, monospace`;
+    ctx.fillStyle = '#ffe500';
     ctx.fillText('STATUS: VERIFIED', w - pad, y - Math.round(tSize * 0.35));
     ctx.font = `500 ${Math.round(w * 0.019)}px "JetBrains Mono", ui-monospace, monospace`;
-    ctx.fillStyle = 'rgba(185,194,214,0.72)';
-    ctx.fillText('PASS: ALL-DAYS // GOA', w - pad, y + Math.round(tSize * 0.6));
+    ctx.fillStyle = '#8ec92a';
+    ctx.fillText('PASS: ALL-DAYS // GOA', w - pad, y + Math.round(tSize * 0.65));
     ctx.restore();
 
     // Barcode — below status block, right-aligned
-    const barcodeH = Math.round(h * 0.052);
+    const barcodeH = Math.round(h * 0.048);
     const barcodeY = y + Math.round(h * 0.012);
     drawBarcode(ctx, w - pad - 148, barcodeY, 148, barcodeH, bSeed);
 
-    // ── SEPARATOR (placed cleanly below barcode) ──
-    const sepY = barcodeY + barcodeH + Math.round(h * 0.025);
+    // ── 6. COORDINATES BAR ──
+    const sepY = barcodeY + barcodeH + 24;
     ctx.save();
-    ctx.strokeStyle = 'rgba(185,194,214,0.28)';
-    ctx.lineWidth = 1.5; ctx.setLineDash([2, 12]); ctx.lineCap = 'round';
+    ctx.strokeStyle = 'rgba(142,201,42,0.4)';
+    ctx.lineWidth = 1.5; ctx.setLineDash([2, 10]); ctx.lineCap = 'round';
     ctx.beginPath(); ctx.moveTo(pad, sepY); ctx.lineTo(w - pad, sepY); ctx.stroke();
     ctx.restore();
 
-    // Coordinates row
-    const coordY = sepY + Math.round(h * 0.038);
-    ctx.font = `500 ${Math.round(w * 0.023)}px "JetBrains Mono", ui-monospace, monospace`;
-    ctx.fillStyle = 'rgba(185,194,214,0.65)';
+    const coordY = sepY + 34;
+    ctx.font = `600 ${Math.round(w * 0.023)}px "JetBrains Mono", ui-monospace, monospace`;
+    ctx.fillStyle = '#8ec92a';
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    ctx.fillText('\uD83D\uDCCD  15.2993\u00B0 N, 73.9540\u00B0 E  \u00B7  GOA, INDIA', pad, coordY);
+    ctx.fillText('\uD83D\uDCCD 15.2993\u00B0 N, 74.1240\u00B0 E  \u00B7  GOA, INDIA', pad, coordY);
     ctx.textAlign = 'right';
-    ctx.fillStyle = T.gold;
     ctx.fillText('HACKER HOUSE 2026', w - pad, coordY);
 
-    // ── BOTTOM STRIP (magenta→aqua gradient bar) ──
-    const stripH = Math.round(h * 0.068);
-    const stripY = h - stripH;
-    const sbg = ctx.createLinearGradient(0, 0, w, 0);
-    sbg.addColorStop(0, T.violet);  sbg.addColorStop(0.35, T.magenta);
-    sbg.addColorStop(0.7, T.sand);  sbg.addColorStop(1,   T.aqua);
-    ctx.fillStyle = sbg; ctx.fillRect(0, stripY, w, stripH);
+    // ── 7. BOTTOM BLACK STRIP ──
+    const blackStripH = 54;
+    const blackStripY = h - stripHeight - blackStripH;
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, blackStripY, w, blackStripH);
 
-    ctx.font = `700 ${Math.round(w * 0.017)}px "JetBrains Mono", ui-monospace, monospace`;
-    ctx.fillStyle = T.ink;
+    // Yellow dashed line top border of black strip
+    ctx.save();
+    ctx.strokeStyle = '#ffd000'; ctx.lineWidth = 2.5; ctx.setLineDash([6, 6]);
+    ctx.beginPath(); ctx.moveTo(0, blackStripY); ctx.lineTo(w, blackStripY); ctx.stroke();
+    ctx.restore();
+
+    ctx.font = `700 ${Math.round(w * 0.020)}px "JetBrains Mono", ui-monospace, monospace`;
     ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    ctx.fillText('#FrameInGoa', pad, stripY + stripH / 2);
+    ctx.fillStyle = '#ffd000';
+    ctx.fillText('#FrameInGoa', pad, blackStripY + blackStripH / 2);
+
     ctx.textAlign = 'center';
-    ctx.fillText('HACKER HOUSE GOA  \u2726  OFFICIAL BUILDER PASS', w / 2, stripY + stripH / 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('HACKER HOUSE GOA  \u2726  OFFICIAL BUILDER PASS', w / 2, blackStripY + blackStripH / 2);
+
     ctx.textAlign = 'right';
-    ctx.fillText('28-31 OCT 2026', w - pad, stripY + stripH / 2);
+    ctx.fillStyle = '#ffd000';
+    ctx.fillText('28-31 OCT 2026', w - pad, blackStripY + blackStripH / 2);
   }
 
 
