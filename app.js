@@ -695,29 +695,15 @@
     // 3 — Header
     const headerY = stripH + 48;
 
-    // BUILDER #XXXX badge — top right
-    ctx.save();
-    ctx.font = `700 ${Math.round(w * 0.024)}px "JetBrains Mono",monospace`;
-    const bdgText = `BUILDER #${badgeNo}`;
-    const bdgW = ctx.measureText(bdgText).width + 26;
-    const bdgH = 38;
-    const bdgX = w - pad - bdgW, bdgY = headerY - 14;
-    roundRect(ctx, bdgX, bdgY, bdgW, bdgH, 6);
-    ctx.fillStyle = T.gold; ctx.fill();
-    ctx.fillStyle = T.black;
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText(bdgText, bdgX + bdgW / 2, bdgY + bdgH / 2 + 1);
-    ctx.restore();
-
-    // HACKER गोवा HOUSE
+    // HACKER गोवा HOUSE — title occupies full width, so measured first
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    const titleSize = Math.round(w * 0.105);
+    const titleSize = Math.round(w * 0.096); // slightly smaller to guarantee no overlap
     ctx.font = `900 ${titleSize}px "DM Serif Display","Space Grotesk",serif`;
     ctx.fillStyle = T.gold;
     const hhW = ctx.measureText('HACKER').width;
     ctx.fillText('HACKER', pad, headerY + 50);
 
-    ctx.font = `900 ${Math.round(w * 0.1)}px system-ui,"Arial Black",sans-serif`;
+    ctx.font = `900 ${Math.round(w * 0.092)}px system-ui,"Arial Black",sans-serif`;
     ctx.fillStyle = T.magenta;
     const goaW = ctx.measureText('गोवा').width;
     ctx.fillText('गोवा', pad + hhW + 6, headerY + 50);
@@ -726,11 +712,26 @@
     ctx.fillStyle = T.gold;
     ctx.fillText('HOUSE', pad + hhW + goaW + 12, headerY + 50);
 
-    // Subtitle
+    // Subtitle line
     ctx.font = `600 ${Math.round(w * 0.023)}px "JetBrains Mono",monospace`;
     ctx.fillStyle = T.lime;
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    ctx.fillText('GOA, INDIA  ·  28 - 31 OCT 2026', pad, headerY + 88);
+    ctx.fillText('GOA, INDIA  ·  28 – 31 OCT 2026', pad, headerY + 90);
+
+    // BUILDER #XXXX badge — right-aligned on subtitle row (clear of title text)
+    ctx.save();
+    ctx.font = `700 ${Math.round(w * 0.022)}px "JetBrains Mono",monospace`;
+    const bdgText = `BUILDER #${badgeNo}`;
+    const bdgW = ctx.measureText(bdgText).width + 24;
+    const bdgH = 34;
+    const bdgX = w - pad - bdgW;
+    const bdgY = headerY + 90 - bdgH;   // vertically centred on subtitle baseline
+    roundRect(ctx, bdgX, bdgY, bdgW, bdgH, 6);
+    ctx.fillStyle = T.gold; ctx.fill();
+    ctx.fillStyle = T.black;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(bdgText, bdgX + bdgW / 2, bdgY + bdgH / 2 + 1);
+    ctx.restore();
 
     // 4 — Photo section (tilted card + tape)
     const photoTopY = headerY + 116;
