@@ -4,10 +4,10 @@
 
 Create a polished, presentation-ready builder ID card for Hacker House Goa 2026 in seconds. Upload your photo, add your name and role, and export a premium card that looks event-ready.
 
-### 🚀 [Live Demo](https://hh-goa-2026-generator-b1utk2u5z-abhishekb2099-5090s-projects.vercel.app)
+### 🚀 [Live Demo](https://hh-goa-2026-generator-rho.vercel.app)
 ### 🔗 [GitHub Repository](https://github.com/aaryanbangale2306/Frame-Generator-HH-Goa)
 
-[![Live Demo](https://img.shields.io/badge/🚀%20Live%20Demo-https%3A%2F%2Fhh--goa--2026--generator--b1utk2u5z--abhishekb2099--5090s--projects.vercel.app-00E5C9?style=for-the-badge&logo=vercel&logoColor=black)](https://hh-goa-2026-generator-b1utk2u5z-abhishekb2099-5090s-projects.vercel.app)
+[![Live Demo](https://img.shields.io/badge/🚀%20Live%20Demo-https%3A%2F%2Fhh--goa--2026--generator--rho.vercel.app-00E5C9?style=for-the-badge&logo=vercel&logoColor=black)](https://hh-goa-2026-generator-rho.vercel.app)
 [![Made with](https://img.shields.io/badge/Made%20with-Vanilla%20JS-E91490?style=for-the-badge&logo=javascript&logoColor=white)](https://github.com/aaryanbangale2306/Frame-Generator-HH-Goa)
 [![License](https://img.shields.io/badge/License-MIT-EDD9B0?style=for-the-badge)](LICENSE)
 
@@ -89,7 +89,7 @@ Then open http://localhost:8080 in your browser.
 
 The project is deployed on Vercel and can be viewed at:
 
-https://hh-goa-2026-generator-b1utk2u5z-abhishekb2099-5090s-projects.vercel.app
+https://hh-goa-2026-generator-rho.vercel.app
 
 ---
 
