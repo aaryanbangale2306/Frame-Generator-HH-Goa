@@ -404,6 +404,13 @@ input[type="range"]::-webkit-slider-thumb {
 .link-btn--inline:hover { color: var(--gold); }
 
 /* ── Fields ── */
+.step-intro {
+  margin: -2px 0 12px 38px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: rgba(255,229,0,.42);
+  font-family: var(--font-body);
+}
 .field { display: block; margin-bottom: 14px; }
 .field:last-child { margin-bottom: 0; }
 .field-label {
@@ -463,14 +470,15 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .preview-stage {
-  position: relative; width: 100%; max-width: 520px;
-  border-radius: var(--r-xl); overflow: hidden;
-  background: radial-gradient(ellipse at 50% 0%, rgba(255,229,0,.05), transparent 60%), rgba(7,43,18,.6);
+  position: relative; width: 100%; max-width: 560px;
+  border-radius: calc(var(--r-xl) + 4px); overflow: hidden;
+  background: linear-gradient(135deg, rgba(255,229,0,.06), rgba(233,20,140,.04)), rgba(7,43,18,.7);
   border: 1px solid var(--line);
   box-shadow: 0 32px 64px rgba(0,0,0,.5), 0 0 0 1px rgba(255,229,0,.04);
   transition: box-shadow .3s;
   min-height: 240px;
   display: flex; align-items: center; justify-content: center;
+  padding: 14px;
 }
 .preview-stage:has(#outputCanvas:not([hidden])) {
   min-height: auto;
@@ -497,7 +505,8 @@ input[type="range"]::-webkit-slider-thumb {
 .preview-empty strong { color: rgba(255,229,0,.6); }
 #outputCanvas {
   width: 100%; height: auto; display: block;
-  border-radius: var(--r-xl);
+  border-radius: calc(var(--r-xl) - 2px);
+  box-shadow: 0 18px 40px rgba(0,0,0,.35);
 }
 .render-badge {
   position: absolute; top: 12px; right: 12px;

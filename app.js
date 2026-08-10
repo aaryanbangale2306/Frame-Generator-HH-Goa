@@ -31,8 +31,7 @@
   const shareNote    = $('shareNote');
   const toastEl      = $('toast');
   const previewFormatBadge = $('previewFormatBadge');
-  const formatBtns   = document.querySelectorAll('.format-btn');
-  const stepNums     = [null, $('stepNum1'), $('stepNum2'), $('stepNum3')];
+  const stepNums     = [null, $('stepNum1'), $('stepNum2')];
 
   const cropCtx = cropCanvas.getContext('2d');
   const outCtx  = outputCanvas.getContext('2d');
@@ -52,7 +51,7 @@
 
   // ── State — initialised to match HTML defaults ──
   const state = {
-    format: 'card',   // 'frame' | 'card' — matches HTML active tab
+    format: 'card',
     img: null,
     zoom: 1,
     panX: 0.5, panY: 0.5,
@@ -73,13 +72,9 @@
 
   // ── Initialise UI state from defaults ──
   function initUI() {
-    // Sync mask to default format
-    cropMaskFrame.className = 'crop-mask crop-mask--square'; // card = square
-    // Show/hide fields based on default format
-    fieldsStep.hidden = (state.format !== 'card');
-    // Update format badge
+    cropMaskFrame.className = 'crop-mask crop-mask--square';
+    fieldsStep.hidden = false;
     updateFormatBadge();
-    // Sync step highlight
     highlightStep(1);
   }
 
@@ -93,7 +88,7 @@
 
   function updateFormatBadge() {
     if (!previewFormatBadge) return;
-    previewFormatBadge.textContent = state.format === 'frame' ? 'PFP FRAME' : 'BUILDER BADGE';
+    previewFormatBadge.textContent = 'ID CARD';
   }
 
   // ── Toast ──
@@ -162,9 +157,8 @@
       zoomSlider.value = '1';
       cropSection.hidden = false;
       dropzone.hidden = true;
-      // Show fields for card mode
-      fieldsStep.hidden = (state.format !== 'card');
-      highlightStep(state.format === 'card' ? 3 : 2);
+      fieldsStep.hidden = false;
+      highlightStep(2);
       renderCropPreview();
       scheduleRender();
       requestAnimationFrame(() => scrollPreviewIntoView());
@@ -346,27 +340,6 @@
     outputCanvas.hidden = true; renderBadge.hidden = true;
     actions.hidden = true; shareNote.hidden = true;
     highlightStep(1);
-  });
-
-  // ============================================================
-  // Format toggle
-  // ============================================================
-  formatBtns.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      formatBtns.forEach((b) => {
-        b.classList.remove('active'); b.setAttribute('aria-selected', 'false');
-      });
-      btn.classList.add('active'); btn.setAttribute('aria-selected', 'true');
-      state.format = btn.dataset.format;
-      // Update crop mask shape
-      cropMaskFrame.className = 'crop-mask crop-mask--' + (state.format === 'frame' ? 'circle' : 'square');
-      // Show/hide builder fields
-      fieldsStep.hidden = (state.format !== 'card');
-      // Update format badge in preview
-      updateFormatBadge();
-      scheduleRender();
-      if (state.img) requestAnimationFrame(() => scrollPreviewIntoView());
-    });
   });
 
   // ============================================================
@@ -557,6 +530,48 @@
     return size;
   }
 
+  function wrapTextLines(ctx, text, maxWidth, maxLines = 3) {
+    const words = String(text || '').trim().split(/\s+/).filter(Boolean);
+    if (!words.length) return [];
+    const lines = [];
+    let current = '';
+
+    const pushLine = (value) => {
+      if (value) lines.push(value);
+    };
+
+    const tryWord = (word) => {
+      const test = current ? `${current} ${word}` : word;
+      if (ctx.measureText(test).width <= maxWidth || !current) {
+        current = test;
+        return true;
+      }
+      return false;
+    };
+
+    for (const word of words) {
+      if (lines.length >= maxLines - 1 && current) {
+        const tail = words.slice(words.indexOf(word)).join(' ');
+        if (tail) {
+          const trimmed = tail.length > 24 ? `${tail.slice(0, 21)}…` : tail;
+          pushLine(trimmed);
+        }
+        break;
+      }
+      if (!tryWord(word)) {
+        pushLine(current);
+        current = word;
+      }
+    }
+
+    if (current) pushLine(current);
+
+    if (lines.length > maxLines) {
+      return lines.slice(0, maxLines);
+    }
+    return lines;
+  }
+
   function drawStripedTape(ctx, x, y, w, h, color1, color2, stripeW = 22) {
     ctx.save();
     ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
@@ -668,214 +683,200 @@
   // FORMAT B — Builder Badge (1080×1350)
   // ============================================================
   function renderCard(ctx, w, h) {
-    const pad = Math.round(w * 0.068);
-    const stripH = 24;
-
-    // 1 — Striped tape borders
-    drawStripedTape(ctx, 0, 0, w, stripH, T.magenta, T.gold, 16);
-    drawStripedTape(ctx, 0, h - stripH, w, stripH, T.magenta, T.gold, 16);
-
-    // 2 — Background
-    ctx.save();
-    const bgGrad = ctx.createRadialGradient(w * 0.5, h * 0.45, 80, w * 0.5, h * 0.45, w * 0.75);
-    bgGrad.addColorStop(0, '#0d5c29'); bgGrad.addColorStop(1, '#063316');
-    ctx.fillStyle = bgGrad; ctx.fillRect(0, stripH, w, h - stripH * 2);
-    // Watermark "26"
-    ctx.font = '900 460px "Space Grotesk",sans-serif';
-    ctx.fillStyle = 'rgba(0,0,0,0.08)';
-    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-    ctx.fillText('26', w - 10, h * 0.52);
-    ctx.restore();
-
-    const name    = state.name.trim() || 'Your Name';
-    const role    = state.role.trim() || 'Builder';
-    const bSeed   = hashStr(name + role);
+    const outerPad = Math.round(w * 0.055);
+    const cardX = outerPad;
+    const cardY = outerPad + 4;
+    const cardW = w - outerPad * 2;
+    const cardH = h - outerPad * 2 - 8;
+    const name = state.name.trim() || 'Your Name';
+    const role = state.role.trim() || 'Builder';
+    const bSeed = hashStr(name + role);
     const badgeNo = String(bSeed % 9000 + 1000);
+    const builderTitle = (state.name.trim() || state.role.trim()) ? generateBuilderTitle() : 'Demo-Day Gambler';
 
-    // 3 — Header
-    const headerY = stripH + 48;
+    const bgGrad = ctx.createLinearGradient(0, 0, w, h);
+    bgGrad.addColorStop(0, '#0f5d2b');
+    bgGrad.addColorStop(0.5, '#082f1a');
+    bgGrad.addColorStop(1, '#06140d');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, w, h);
 
-    // HACKER गोवा HOUSE — title occupies full width, so measured first
-    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    const titleSize = Math.round(w * 0.096); // slightly smaller to guarantee no overlap
-    ctx.font = `900 ${titleSize}px "DM Serif Display","Space Grotesk",serif`;
+    const panelGlow = ctx.createRadialGradient(w * 0.5, h * 0.1, 20, w * 0.5, h * 0.1, w * 0.75);
+    panelGlow.addColorStop(0, 'rgba(255,229,0,0.16)');
+    panelGlow.addColorStop(1, 'rgba(255,229,0,0)');
+    ctx.fillStyle = panelGlow;
+    ctx.fillRect(0, 0, w, h);
+
+    roundRect(ctx, cardX, cardY, cardW, cardH, 28);
+    ctx.fillStyle = 'rgba(255,255,255,0.04)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,229,0,0.22)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    roundRect(ctx, cardX + 16, cardY + 16, cardW - 32, cardH - 32, 22);
+    ctx.fillStyle = 'rgba(4,26,13,0.34)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,229,0,0.14)';
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+
+    const topH = Math.round(cardH * 0.136);
+    roundRect(ctx, cardX + 28, cardY + 28, cardW - 56, topH, 16);
+    ctx.fillStyle = 'rgba(0,0,0,0.28)';
+    ctx.fill();
+
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    ctx.font = `800 ${Math.round(w * 0.064)}px "DM Serif Display","Space Grotesk",serif`;
     ctx.fillStyle = T.gold;
-    const hhW = ctx.measureText('HACKER').width;
-    ctx.fillText('HACKER', pad, headerY + 50);
-
-    ctx.font = `900 ${Math.round(w * 0.092)}px system-ui,"Arial Black",sans-serif`;
+    ctx.fillText('HH', cardX + 42, cardY + 70);
+    ctx.font = `800 ${Math.round(w * 0.06)}px "DM Serif Display","Space Grotesk",serif`;
     ctx.fillStyle = T.magenta;
-    const goaW = ctx.measureText('गोवा').width;
-    ctx.fillText('गोवा', pad + hhW + 6, headerY + 50);
+    ctx.fillText('GOA', cardX + 42 + ctx.measureText('HH').width + 10, cardY + 70);
 
-    ctx.font = `900 ${titleSize}px "DM Serif Display","Space Grotesk",serif`;
-    ctx.fillStyle = T.gold;
-    ctx.fillText('HOUSE', pad + hhW + goaW + 12, headerY + 50);
-
-    // Subtitle line
-    ctx.font = `600 ${Math.round(w * 0.023)}px "JetBrains Mono",monospace`;
-    ctx.fillStyle = T.lime;
-    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    ctx.fillText('GOA, INDIA  ·  28 – 31 OCT 2026', pad, headerY + 90);
-
-    // BUILDER #XXXX badge — right-aligned on subtitle row (clear of title text)
-    ctx.save();
     ctx.font = `700 ${Math.round(w * 0.022)}px "JetBrains Mono",monospace`;
-    const bdgText = `BUILDER #${badgeNo}`;
-    const bdgW = ctx.measureText(bdgText).width + 24;
-    const bdgH = 34;
-    const bdgX = w - pad - bdgW;
-    const bdgY = headerY + 90 - bdgH;   // vertically centred on subtitle baseline
-    roundRect(ctx, bdgX, bdgY, bdgW, bdgH, 6);
-    ctx.fillStyle = T.gold; ctx.fill();
+    ctx.fillStyle = T.lime;
+    ctx.fillText('2026 BUILDER PASS', cardX + 42, cardY + 100);
+
+    ctx.save();
+    ctx.font = `700 ${Math.round(w * 0.021)}px "JetBrains Mono",monospace`;
+    const badgeText = `ID ${badgeNo}`;
+    const badgeW = ctx.measureText(badgeText).width + 26;
+    const badgeH = 34;
+    const badgeX = cardX + cardW - 44 - badgeW;
+    const badgeY = cardY + 38;
+    roundRect(ctx, badgeX, badgeY, badgeW, badgeH, 999);
+    ctx.fillStyle = T.gold;
+    ctx.fill();
     ctx.fillStyle = T.black;
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText(bdgText, bdgX + bdgW / 2, bdgY + bdgH / 2 + 1);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(badgeText, badgeX + badgeW / 2, badgeY + badgeH / 2 + 1);
     ctx.restore();
 
-    // 4 — Photo section (tilted card + tape)
-    const photoTopY = headerY + 116;
-    const photoH    = Math.round(h * 0.42);
-    const photoW    = w - pad * 2;
-    const photoCx   = pad + photoW / 2;
-    const photoCy   = photoTopY + photoH / 2;
+    const photoX = cardX + 44;
+    const photoY = cardY + 118;
+    const photoW = cardW - 88;
+    const photoH = Math.round(cardH * 0.4);
 
-    ctx.save();
-    ctx.translate(photoCx, photoCy);
-    ctx.rotate(-1.5 * Math.PI / 180);
-
-    // White card background + shadow
-    ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 30; ctx.shadowOffsetY = 6;
-    ctx.fillStyle = T.white;
-    roundRect(ctx, -photoW / 2 - 8, -photoH / 2 - 8, photoW + 16, photoH + 16, 12);
+    roundRect(ctx, photoX, photoY, photoW, photoH, 18);
+    ctx.fillStyle = 'rgba(255,255,255,0.06)';
     ctx.fill();
-    ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+    ctx.strokeStyle = 'rgba(255,229,0,0.2)';
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
 
-    // Photo clip + draw
+    const innerPhotoX = photoX + 10;
+    const innerPhotoY = photoY + 10;
+    const innerPhotoW = photoW - 20;
+    const innerPhotoH = photoH - 20;
+    roundRect(ctx, innerPhotoX, innerPhotoY, innerPhotoW, innerPhotoH, 14);
+    ctx.fillStyle = T.white;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.06)';
+    ctx.stroke();
+
     ctx.save();
-    roundRect(ctx, -photoW / 2, -photoH / 2, photoW, photoH, 6);
+    roundRect(ctx, innerPhotoX + 8, innerPhotoY + 8, innerPhotoW - 16, innerPhotoH - 16, 10);
     ctx.clip();
     if (state.img) {
-      drawCoverImage(ctx, state.img, -photoW / 2, -photoH / 2, photoW, photoH, state.zoom, state.panX, state.panY);
+      drawCoverImage(ctx, state.img, innerPhotoX + 8, innerPhotoY + 8, innerPhotoW - 16, innerPhotoH - 16, state.zoom, state.panX, state.panY);
     } else {
-      const ig = ctx.createLinearGradient(-photoW / 2, -photoH / 2, photoW / 2, photoH / 2);
-      ig.addColorStop(0, '#0b5c27'); ig.addColorStop(1, T.magenta);
-      ctx.fillStyle = ig; ctx.fillRect(-photoW / 2, -photoH / 2, photoW, photoH);
+      const ig = ctx.createLinearGradient(innerPhotoX + 8, innerPhotoY + 8, innerPhotoX + innerPhotoW - 16, innerPhotoY + innerPhotoH - 16);
+      ig.addColorStop(0, '#0d5c27');
+      ig.addColorStop(1, T.magenta);
+      ctx.fillStyle = ig;
+      ctx.fillRect(innerPhotoX + 8, innerPhotoY + 8, innerPhotoW - 16, innerPhotoH - 16);
     }
     ctx.restore();
 
-    // Viewfinder corners
-    drawViewfinderCorners(ctx, -photoW / 2, -photoH / 2, photoW, photoH, 36, T.magenta);
-
-    // Duct tape accent (top-left)
-    drawDuctTape(ctx, -photoW / 2 + 55, -photoH / 2 + 12, 115, 33, -0.22, '#e5c414');
-
-    // Builder title pill (bottom-left of photo)
-    const builderTitle = (state.name.trim() || state.role.trim()) ? generateBuilderTitle() : 'Demo-Day Gambler';
-    const overlayLabel = `"${builderTitle}"`;
     ctx.save();
-    ctx.font = `italic 700 ${Math.round(w * 0.032)}px "Space Grotesk",system-ui,sans-serif`;
-    const olW = Math.min(ctx.measureText(overlayLabel).width + 36, photoW - 40);
-    const olH = 52;
-    const olX = -photoW / 2 + 20;
-    const olY = photoH / 2 - olH - 20;
-    ctx.translate(olX + olW / 2, olY + olH / 2);
-    ctx.rotate(-1.2 * Math.PI / 180);
-    roundRect(ctx, -olW / 2, -olH / 2, olW, olH, 10);
-    ctx.fillStyle = T.magenta; ctx.fill();
-    ctx.fillStyle = T.white; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    // Ensure title fits in pill
-    let titleFontSize = Math.round(w * 0.032);
-    ctx.font = `italic 700 ${titleFontSize}px "Space Grotesk",sans-serif`;
-    while (ctx.measureText(overlayLabel).width > olW - 16 && titleFontSize > 18) {
-      titleFontSize -= 2;
-      ctx.font = `italic 700 ${titleFontSize}px "Space Grotesk",sans-serif`;
-    }
-    ctx.fillText(overlayLabel, 0, 1);
+    ctx.font = `italic 700 ${Math.round(w * 0.024)}px "Space Grotesk",sans-serif`;
+    const titleText = `"${builderTitle}"`;
+    const titlePad = 22;
+    const titleW = Math.min(ctx.measureText(titleText).width + titlePad * 2, photoW - 56);
+    const titleH = 40;
+    const titleX = photoX + 24;
+    const titleY = photoY + photoH - titleH - 18;
+    roundRect(ctx, titleX, titleY, titleW, titleH, 999);
+    ctx.fillStyle = T.magenta;
+    ctx.fill();
+    ctx.fillStyle = T.white;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(titleText, titleX + titleW / 2, titleY + titleH / 2 + 1);
     ctx.restore();
 
-    ctx.restore(); // end photo rotation
+    const infoX = cardX + 36;
+    const infoY = photoY + photoH + 24;
+    const infoW = cardW - 72;
+    const infoH = Math.round(cardH * 0.22);
+    roundRect(ctx, infoX, infoY, infoW, infoH, 16);
+    ctx.fillStyle = 'rgba(255,255,255,0.075)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,229,0,0.14)';
+    ctx.lineWidth = 1.1;
+    ctx.stroke();
 
-    // 5 — Name & tagline
-    let y = photoTopY + photoH + 56;
-
-    // Name — large serif
-    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    const nameSize = fitText(ctx, name, w - pad * 2, Math.round(w * 0.09), '700 {size}px "DM Serif Display",Georgia,serif', 36);
+    let y = infoY + 30;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    const nameSize = fitText(ctx, name, infoW - 40, Math.round(w * 0.07), '700 {size}px "DM Serif Display",Georgia,serif', 28);
     ctx.font = `700 ${nameSize}px "DM Serif Display",Georgia,serif`;
     ctx.fillStyle = T.gold;
-    ctx.fillText(name, pad, y);
-    y += Math.round(h * 0.036);
+    const nameLines = wrapTextLines(ctx, name, infoW - 40, 2);
+    nameLines.forEach((line, i) => ctx.fillText(line, infoX + 20, y + i * (nameSize * 0.95)));
+    y += Math.round(h * 0.024) + (nameLines.length > 1 ? nameSize * 0.8 : 0);
 
-    // Role sub-label
-    ctx.font = `600 ${Math.round(w * 0.025)}px "JetBrains Mono",monospace`;
+    const roleText = role.toUpperCase();
+    const roleSize = fitText(ctx, roleText, infoW - 40, Math.round(w * 0.0205), '700 {size}px "JetBrains Mono",monospace', 15);
+    ctx.font = `700 ${roleSize}px "JetBrains Mono",monospace`;
     ctx.fillStyle = T.lime;
-    ctx.fillText(role.toUpperCase(), pad, y);
-    y += Math.round(h * 0.034);
+    const roleLines = wrapTextLines(ctx, roleText, infoW - 40, 2);
+    roleLines.forEach((line, i) => ctx.fillText(line, infoX + 20, y + i * (roleSize * 1.05)));
+    y += Math.round(h * 0.026) + (roleLines.length > 1 ? roleSize * 0.8 : 0);
 
-    // Tagline — full-width, auto-shrink
     const tagline = generateTagline();
-    let tSize = Math.round(w * 0.026);
-    ctx.font = `700 ${tSize}px "JetBrains Mono",monospace`;
-    while (ctx.measureText(tagline).width > w - pad * 2 && tSize > 15) {
-      tSize -= 1;
-      ctx.font = `700 ${tSize}px "JetBrains Mono",monospace`;
-    }
+    const taglineSize = Math.round(w * 0.0195);
+    ctx.font = `700 ${taglineSize}px "JetBrains Mono",monospace`;
     ctx.fillStyle = T.white;
-    ctx.textAlign = 'left';
-    ctx.fillText(tagline, pad, y);
+    const taglineLines = wrapTextLines(ctx, tagline, infoW - 40, 2);
+    taglineLines.forEach((line, i) => ctx.fillText(line, infoX + 20, y + i * (taglineSize * 1.06)));
 
-    // Status + barcode (right column, aligned to tagline row)
-    const statusY = y;
-    ctx.save();
-    ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
-    ctx.font = `700 ${Math.round(w * 0.021)}px "JetBrains Mono",monospace`;
+    const dividerY = infoY + infoH - 74;
+    ctx.strokeStyle = 'rgba(142,201,42,.26)';
+    ctx.lineWidth = 1.1;
+    ctx.beginPath();
+    ctx.moveTo(infoX + 20, dividerY);
+    ctx.lineTo(infoX + infoW - 20, dividerY);
+    ctx.stroke();
+
+    ctx.font = `700 ${Math.round(w * 0.0175)}px "JetBrains Mono",monospace`;
     ctx.fillStyle = T.gold;
-    ctx.fillText('STATUS: VERIFIED', w - pad, statusY - Math.round(tSize * 0.3));
-    ctx.font = `500 ${Math.round(w * 0.019)}px "JetBrains Mono",monospace`;
+    ctx.textAlign = 'left';
+    ctx.fillText('STATUS: VERIFIED', infoX + 20, dividerY + 24);
     ctx.fillStyle = T.lime;
-    ctx.fillText('PASS: ALL-DAYS // GOA', w - pad, statusY + Math.round(tSize * 0.7));
-    ctx.restore();
-
-    const barcodeH = Math.round(h * 0.044);
-    const barcodeY = statusY + Math.round(h * 0.014);
-    drawBarcode(ctx, w - pad - 150, barcodeY, 150, barcodeH, bSeed);
-
-    // 6 — Coordinates bar
-    const sepY = barcodeY + barcodeH + 26;
-    ctx.save();
-    ctx.strokeStyle = 'rgba(142,201,42,.4)'; ctx.lineWidth = 1.5;
-    ctx.setLineDash([2, 10]); ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(pad, sepY); ctx.lineTo(w - pad, sepY); ctx.stroke();
-    ctx.restore();
-
-    const coordY = sepY + 36;
-    ctx.font = `600 ${Math.round(w * 0.022)}px "JetBrains Mono",monospace`;
-    ctx.fillStyle = T.lime;
-    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    ctx.fillText('📍 15.2993° N, 74.1240° E  ·  GOA, INDIA', pad, coordY);
     ctx.textAlign = 'right';
-    ctx.fillText('HACKER HOUSE 2026', w - pad, coordY);
+    ctx.fillText('PASS: ALL-DAYS // GOA', infoX + infoW - 20, dividerY + 24);
 
-    // 7 — Bottom black strip
-    const blackStripH = 56;
-    const blackStripY = h - stripH - blackStripH;
-    ctx.fillStyle = T.black;
-    ctx.fillRect(0, blackStripY, w, blackStripH);
-    // Yellow dashed border
-    ctx.save();
-    ctx.strokeStyle = T.gold; ctx.lineWidth = 2.5; ctx.setLineDash([6, 6]);
-    ctx.beginPath(); ctx.moveTo(0, blackStripY); ctx.lineTo(w, blackStripY); ctx.stroke();
-    ctx.restore();
+    const barcodeY = dividerY + 40;
+    drawBarcode(ctx, infoX + 20, barcodeY, Math.min(220, infoW - 40), Math.round(h * 0.028), bSeed);
 
-    ctx.font = `700 ${Math.round(w * 0.02)}px "JetBrains Mono",monospace`;
-    ctx.textBaseline = 'middle';
-    ctx.textAlign = 'left'; ctx.fillStyle = T.gold;
-    ctx.fillText('#FrameInGoa', pad, blackStripY + blackStripH / 2);
-    ctx.textAlign = 'center'; ctx.fillStyle = T.white;
-    ctx.fillText('HACKER HOUSE GOA  ★  OFFICIAL BUILDER PASS', w / 2, blackStripY + blackStripH / 2);
-    ctx.textAlign = 'right'; ctx.fillStyle = T.gold;
-    ctx.fillText('28–31 OCT 2026', w - pad, blackStripY + blackStripH / 2);
+    const footerY = barcodeY + Math.round(h * 0.028) + 16;
+    ctx.font = `600 ${Math.round(w * 0.0185)}px "JetBrains Mono",monospace`;
+    ctx.fillStyle = T.lime;
+    ctx.textAlign = 'left';
+    ctx.fillText('📍 GOA, INDIA • 28–31 OCT 2026', infoX + 20, footerY);
+    ctx.textAlign = 'right';
+    ctx.fillText('OFFICIAL BUILDER PASS', infoX + infoW - 20, footerY);
+
+    ctx.fillStyle = T.gold;
+    ctx.textAlign = 'left';
+    ctx.font = `700 ${Math.round(w * 0.0175)}px "JetBrains Mono",monospace`;
+    ctx.fillText('#FrameInGoa', cardX + 32, cardY + cardH - 28);
+    ctx.textAlign = 'right';
+    ctx.fillText('28–31 OCT 2026', cardX + cardW - 32, cardY + cardH - 28);
   }
 
   // ============================================================
@@ -890,13 +891,11 @@
 
   function render() {
     if (!state.img) return;
-    const isFrame = state.format === 'frame';
-    const w = 1080, h = isFrame ? 1080 : 1350;
+    const w = 1080, h = 1350;
     outputCanvas.width = w; outputCanvas.height = h;
 
     outCtx.clearRect(0, 0, w, h);
-    if (isFrame) renderFrame(outCtx, w);
-    else renderCard(outCtx, w, h);
+    renderCard(outCtx, w, h);
 
     previewEmpty.hidden = true;
     outputCanvas.hidden = false;
@@ -918,7 +917,7 @@
     const a = document.createElement('a');
     a.href = url;
     const slug = state.name.trim() ? state.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'builder';
-    a.download = `hh-goa-2026-${slug}-${state.format}.png`;
+    a.download = `hh-goa-2026-${slug}-id.png`;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 4000);
     toast('✓ Image downloaded!');
@@ -929,9 +928,7 @@
   // ============================================================
   function buildCaption() {
     const handle = state.name.trim();
-    const lead = state.format === 'frame'
-      ? 'Just framed my PFP for HH Goa 2026 🏝️⚡'
-      : `Here's my HH Goa 2026 builder badge${handle ? `, ${handle} here` : ''} 🏝️⚡`;
+    const lead = `Here's my HH Goa 2026 builder ID card${handle ? `, ${handle} here` : ''} 🏝️⚡`;
     return `${lead} #FrameInGoa`;
   }
 
@@ -939,7 +936,7 @@
     if (!state.img) return;
     const blob = await canvasToBlob(outputCanvas);
     const caption = buildCaption();
-    const file = new File([blob], `hh-goa-2026-${state.format}.png`, { type: 'image/png' });
+    const file = new File([blob], 'hh-goa-2026-builder-id.png', { type: 'image/png' });
 
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       try { await navigator.share({ files: [file], text: caption }); return; }
