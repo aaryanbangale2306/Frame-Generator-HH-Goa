@@ -1,14 +1,14 @@
 <div align="center">
 
-# 🏝️ HH Goa 2026 — Frame & ID Card Generator
+# 🏝️ HH Goa 2026 — ID Card Generator
 
-**Turn your photo into a branded HH Goa 2026 graphic in seconds.**  
+**Turn your photo into a branded HH Goa 2026 builder ID card in seconds.**  
 No login. No signup. No server. Pure browser magic.
 
-### 🚀 **[LIVE DEMO — CLICK TO TRY APP](https://hh-goa-2026-generator-rho.vercel.app)**
-👉 **`https://hh-goa-2026-generator-rho.vercel.app`**
+### 🚀 **[LIVE DEMO — CLICK TO TRY APP](https://hh-goa-2026-generator-b1utk2u5z-abhishekb2099-5090s-projects.vercel.app)**
+👉 **`https://hh-goa-2026-generator-b1utk2u5z-abhishekb2099-5090s-projects.vercel.app`**
 
-[![Live Demo](https://img.shields.io/badge/🚀%20Live%20Demo-https%3A%2F%2Fhh--goa--2026--generator--rho.vercel.app-00E5C9?style=for-the-badge&logo=vercel&logoColor=black)](https://hh-goa-2026-generator-rho.vercel.app)
+[![Live Demo](https://img.shields.io/badge/🚀%20Live%20Demo-https%3A%2F%2Fhh--goa--2026--generator--b1utk2u5z--abhishekb2099--5090s--projects.vercel.app-00E5C9?style=for-the-badge&logo=vercel&logoColor=black)](https://hh-goa-2026-generator-b1utk2u5z-abhishekb2099-5090s-projects.vercel.app)
 [![Made with](https://img.shields.io/badge/Made%20with-Vanilla%20JS-E91490?style=for-the-badge&logo=javascript&logoColor=white)](https://github.com/aaryanbangale2306/Frame-Generator-HH-Goa)
 [![License](https://img.shields.io/badge/License-MIT-EDD9B0?style=for-the-badge)](LICENSE)
 
@@ -18,12 +18,11 @@ No login. No signup. No server. Pure browser magic.
 
 ## ✨ What it does
 
-Upload your photo → pick a format → download and post. Two shareable graphics, zero friction:
+Upload your photo → enter your details → generate and download your branded builder ID card in seconds.
 
-| Format | Output | Size |
-|--------|--------|------|
-| 🟣 **PFP Frame** | Circular X profile picture overlay with "HH GOA 2026" arc text, gradient ring, and `#FrameInGoa` pill | 1080 × 1080 px |
-| 🎫 **Builder Badge** | Full event pass — name, role, builder title, barcode, Goa coordinates, gradient header | 1080 × 1350 px |
+| Output | Details |
+|--------|---------|
+| 🎫 **Builder ID Card** | Full event pass — name, role, builder title, barcode, Goa coordinates, and premium header/footer styling | 1080 × 1350 px |
 
 ---
 

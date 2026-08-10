@@ -1,5 +1,5 @@
 /* ============================================================
-   HH GOA 2026 — Frame / ID Card Generator
+   HH GOA 2026 — ID Card Generator
    Vanilla JS · single-canvas render pipeline · no backend
    ============================================================ */
 (() => {
@@ -31,8 +31,7 @@
   const shareNote    = $('shareNote');
   const toastEl      = $('toast');
   const previewFormatBadge = $('previewFormatBadge');
-  const formatBtns   = document.querySelectorAll('.format-btn');
-  const stepNums     = [null, $('stepNum1'), $('stepNum2'), $('stepNum3')];
+  const stepNums     = [null, $('stepNum1'), $('stepNum2')];
 
   const cropCtx = cropCanvas.getContext('2d');
   const outCtx  = outputCanvas.getContext('2d');
@@ -52,7 +51,6 @@
 
   // ── State — initialised to match HTML defaults ──
   const state = {
-    format: 'card',   // 'frame' | 'card' — matches HTML active tab
     img: null,
     zoom: 1,
     panX: 0.5, panY: 0.5,
@@ -73,13 +71,9 @@
 
   // ── Initialise UI state from defaults ──
   function initUI() {
-    // Sync mask to default format
-    cropMaskFrame.className = 'crop-mask crop-mask--square'; // card = square
-    // Show/hide fields based on default format
-    fieldsStep.hidden = (state.format !== 'card');
-    // Update format badge
+    cropMaskFrame.className = 'crop-mask crop-mask--square';
+    fieldsStep.hidden = false;
     updateFormatBadge();
-    // Sync step highlight
     highlightStep(1);
   }
 
@@ -93,7 +87,7 @@
 
   function updateFormatBadge() {
     if (!previewFormatBadge) return;
-    previewFormatBadge.textContent = state.format === 'frame' ? 'PFP FRAME' : 'BUILDER BADGE';
+    previewFormatBadge.textContent = 'ID CARD';
   }
 
   // ── Toast ──
@@ -162,9 +156,8 @@
       zoomSlider.value = '1';
       cropSection.hidden = false;
       dropzone.hidden = true;
-      // Show fields for card mode
-      fieldsStep.hidden = (state.format !== 'card');
-      highlightStep(state.format === 'card' ? 3 : 2);
+      fieldsStep.hidden = false;
+      highlightStep(2);
       renderCropPreview();
       scheduleRender();
       requestAnimationFrame(() => scrollPreviewIntoView());
@@ -346,27 +339,6 @@
     outputCanvas.hidden = true; renderBadge.hidden = true;
     actions.hidden = true; shareNote.hidden = true;
     highlightStep(1);
-  });
-
-  // ============================================================
-  // Format toggle
-  // ============================================================
-  formatBtns.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      formatBtns.forEach((b) => {
-        b.classList.remove('active'); b.setAttribute('aria-selected', 'false');
-      });
-      btn.classList.add('active'); btn.setAttribute('aria-selected', 'true');
-      state.format = btn.dataset.format;
-      // Update crop mask shape
-      cropMaskFrame.className = 'crop-mask crop-mask--' + (state.format === 'frame' ? 'circle' : 'square');
-      // Show/hide builder fields
-      fieldsStep.hidden = (state.format !== 'card');
-      // Update format badge in preview
-      updateFormatBadge();
-      scheduleRender();
-      if (state.img) requestAnimationFrame(() => scrollPreviewIntoView());
-    });
   });
 
   // ============================================================
@@ -616,56 +588,7 @@
   }
 
   // ============================================================
-  // FORMAT A — PFP Frame (1080×1080)
-  // ============================================================
-  function renderFrame(ctx, size) {
-    const cx = size / 2, cy = size / 2;
-    const r = size * 0.352;
-
-    paintHorizonBackground(ctx, size, size);
-    paintWaveBand(ctx, size, size, size * 0.78, T.gold, 0.22);
-    paintWaveBand(ctx, size, size, size * 0.86, T.ink, 0.35);
-    palmFrond(ctx, size * 0.06, size * 0.98, 1.1, false, T.ink, 0.5);
-    palmFrond(ctx, size * 0.94, size * 0.98, 1.1, true,  T.ink, 0.5);
-
-    dashedCircle(ctx, cx, cy, r * 1.2, { color: T.gold, alpha: 0.3, dash: [3, 14], width: 2, rotate: 0.2 });
-    dashedCircle(ctx, cx, cy, r * 1.12, { color: T.gold, alpha: 0.5, dash: [14, 10], width: 2.5, rotate: -0.4 });
-
-    // Gradient ring
-    ctx.save();
-    ctx.beginPath(); ctx.arc(cx, cy, r + size * 0.022, 0, Math.PI * 2);
-    const ringGrad = ctx.createLinearGradient(cx - r, cy - r, cx + r, cy + r);
-    ringGrad.addColorStop(0, T.magenta); ringGrad.addColorStop(0.5, T.gold); ringGrad.addColorStop(1, T.gold);
-    ctx.strokeStyle = ringGrad; ctx.lineWidth = size * 0.028; ctx.stroke(); ctx.restore();
-
-    // Photo clipped to circle
-    ctx.save();
-    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.clip();
-    if (state.img) {
-      drawCoverImage(ctx, state.img, cx - r, cy - r, r * 2, r * 2, state.zoom, state.panX, state.panY);
-    } else {
-      ctx.fillStyle = T.inkRaised; ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
-    }
-    ctx.restore();
-
-    // Inner hairline
-    ctx.save();
-    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(255,229,0,.4)'; ctx.stroke(); ctx.restore();
-
-    arcText(ctx, 'HH GOA 2026', cx, cy, r * 1.32, {
-      font: `700 ${Math.round(size * 0.052)}px "DM Serif Display","Space Grotesk",serif`,
-      color: T.gold,
-    });
-
-    pill(ctx, cx, cy + r + size * 0.075, '#FrameInGoa', {
-      font: `600 ${Math.round(size * 0.024)}px "JetBrains Mono",monospace`,
-      bg: '#000000', fg: T.gold, borderColor: 'rgba(255,229,0,.6)',
-    });
-  }
-
-  // ============================================================
-  // FORMAT B — Builder Badge (1080×1350)
+  // Builder Badge / ID Card (1080×1350)
   // ============================================================
   function renderCard(ctx, w, h) {
     const pad = Math.round(w * 0.068);
@@ -693,30 +616,32 @@
     const badgeNo = String(bSeed % 9000 + 1000);
 
     // 3 — Header
-    const headerY = stripH + 48;
+    const headerY = stripH + 32;
+    const titleBaselineY = headerY + 44;
+    const subtitleY = headerY + 78;
 
     // HACKER गोवा HOUSE — title occupies full width, so measured first
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    const titleSize = Math.round(w * 0.096); // slightly smaller to guarantee no overlap
+    const titleSize = Math.round(w * 0.096);
     ctx.font = `900 ${titleSize}px "DM Serif Display","Space Grotesk",serif`;
     ctx.fillStyle = T.gold;
     const hhW = ctx.measureText('HACKER').width;
-    ctx.fillText('HACKER', pad, headerY + 50);
+    ctx.fillText('HACKER', pad, titleBaselineY);
 
     ctx.font = `900 ${Math.round(w * 0.092)}px system-ui,"Arial Black",sans-serif`;
     ctx.fillStyle = T.magenta;
     const goaW = ctx.measureText('गोवा').width;
-    ctx.fillText('गोवा', pad + hhW + 6, headerY + 50);
+    ctx.fillText('गोवा', pad + hhW + 8, titleBaselineY);
 
     ctx.font = `900 ${titleSize}px "DM Serif Display","Space Grotesk",serif`;
     ctx.fillStyle = T.gold;
-    ctx.fillText('HOUSE', pad + hhW + goaW + 12, headerY + 50);
+    ctx.fillText('HOUSE', pad + hhW + goaW + 14, titleBaselineY);
 
     // Subtitle line
     ctx.font = `600 ${Math.round(w * 0.023)}px "JetBrains Mono",monospace`;
     ctx.fillStyle = T.lime;
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-    ctx.fillText('GOA, INDIA  ·  28 – 31 OCT 2026', pad, headerY + 90);
+    ctx.fillText('GOA, INDIA  ·  28 – 31 OCT 2026', pad, subtitleY);
 
     // BUILDER #XXXX badge — right-aligned on subtitle row (clear of title text)
     ctx.save();
@@ -725,7 +650,7 @@
     const bdgW = ctx.measureText(bdgText).width + 24;
     const bdgH = 34;
     const bdgX = w - pad - bdgW;
-    const bdgY = headerY + 90 - bdgH;   // vertically centred on subtitle baseline
+    const bdgY = subtitleY - bdgH + 4;
     roundRect(ctx, bdgX, bdgY, bdgW, bdgH, 6);
     ctx.fillStyle = T.gold; ctx.fill();
     ctx.fillStyle = T.black;
@@ -734,8 +659,8 @@
     ctx.restore();
 
     // 4 — Photo section (tilted card + tape)
-    const photoTopY = headerY + 116;
-    const photoH    = Math.round(h * 0.42);
+    const photoTopY = headerY + 104;
+    const photoH    = Math.round(h * 0.36);
     const photoW    = w - pad * 2;
     const photoCx   = pad + photoW / 2;
     const photoCy   = photoTopY + photoH / 2;
@@ -775,10 +700,10 @@
     const overlayLabel = `"${builderTitle}"`;
     ctx.save();
     ctx.font = `italic 700 ${Math.round(w * 0.032)}px "Space Grotesk",system-ui,sans-serif`;
-    const olW = Math.min(ctx.measureText(overlayLabel).width + 36, photoW - 40);
-    const olH = 52;
-    const olX = -photoW / 2 + 20;
-    const olY = photoH / 2 - olH - 20;
+    const olW = Math.min(ctx.measureText(overlayLabel).width + 42, photoW - 36);
+    const olH = 54;
+    const olX = -photoW / 2 + 22;
+    const olY = photoH / 2 - olH - 26;
     ctx.translate(olX + olW / 2, olY + olH / 2);
     ctx.rotate(-1.2 * Math.PI / 180);
     roundRect(ctx, -olW / 2, -olH / 2, olW, olH, 10);
@@ -797,7 +722,7 @@
     ctx.restore(); // end photo rotation
 
     // 5 — Name & tagline
-    let y = photoTopY + photoH + 56;
+    let y = photoTopY + photoH + 96;
 
     // Name — large serif
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
@@ -805,13 +730,13 @@
     ctx.font = `700 ${nameSize}px "DM Serif Display",Georgia,serif`;
     ctx.fillStyle = T.gold;
     ctx.fillText(name, pad, y);
-    y += Math.round(h * 0.036);
+    y += Math.round(h * 0.052);
 
     // Role sub-label
     ctx.font = `600 ${Math.round(w * 0.025)}px "JetBrains Mono",monospace`;
     ctx.fillStyle = T.lime;
     ctx.fillText(role.toUpperCase(), pad, y);
-    y += Math.round(h * 0.034);
+    y += Math.round(h * 0.046);
 
     // Tagline — full-width, auto-shrink
     const tagline = generateTagline();
@@ -825,20 +750,20 @@
     ctx.textAlign = 'left';
     ctx.fillText(tagline, pad, y);
 
-    // Status + barcode (right column, aligned to tagline row)
-    const statusY = y;
+    // Status + barcode (right column, separated into clear rows)
+    const statusY = y + 6;
     ctx.save();
     ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
     ctx.font = `700 ${Math.round(w * 0.021)}px "JetBrains Mono",monospace`;
     ctx.fillStyle = T.gold;
-    ctx.fillText('STATUS: VERIFIED', w - pad, statusY - Math.round(tSize * 0.3));
+    ctx.fillText('STATUS: VERIFIED', w - pad, statusY);
     ctx.font = `500 ${Math.round(w * 0.019)}px "JetBrains Mono",monospace`;
     ctx.fillStyle = T.lime;
-    ctx.fillText('PASS: ALL-DAYS // GOA', w - pad, statusY + Math.round(tSize * 0.7));
+    ctx.fillText('PASS: ALL-DAYS // GOA', w - pad, statusY + 26);
     ctx.restore();
 
-    const barcodeH = Math.round(h * 0.044);
-    const barcodeY = statusY + Math.round(h * 0.014);
+    const barcodeH = Math.round(h * 0.038);
+    const barcodeY = statusY + 50;
     drawBarcode(ctx, w - pad - 150, barcodeY, 150, barcodeH, bSeed);
 
     // 6 — Coordinates bar
@@ -890,13 +815,12 @@
 
   function render() {
     if (!state.img) return;
-    const isFrame = state.format === 'frame';
-    const w = 1080, h = isFrame ? 1080 : 1350;
+    const w = 1080;
+    const h = 1350;
     outputCanvas.width = w; outputCanvas.height = h;
 
     outCtx.clearRect(0, 0, w, h);
-    if (isFrame) renderFrame(outCtx, w);
-    else renderCard(outCtx, w, h);
+    renderCard(outCtx, w, h);
 
     previewEmpty.hidden = true;
     outputCanvas.hidden = false;
@@ -918,7 +842,7 @@
     const a = document.createElement('a');
     a.href = url;
     const slug = state.name.trim() ? state.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'builder';
-    a.download = `hh-goa-2026-${slug}-${state.format}.png`;
+    a.download = `hh-goa-2026-${slug}.png`;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 4000);
     toast('✓ Image downloaded!');
@@ -929,9 +853,7 @@
   // ============================================================
   function buildCaption() {
     const handle = state.name.trim();
-    const lead = state.format === 'frame'
-      ? 'Just framed my PFP for HH Goa 2026 🏝️⚡'
-      : `Here's my HH Goa 2026 builder badge${handle ? `, ${handle} here` : ''} 🏝️⚡`;
+    const lead = `Here's my HH Goa 2026 builder badge${handle ? `, ${handle} here` : ''} 🏝️⚡`;
     return `${lead} #FrameInGoa`;
   }
 
@@ -939,7 +861,7 @@
     if (!state.img) return;
     const blob = await canvasToBlob(outputCanvas);
     const caption = buildCaption();
-    const file = new File([blob], `hh-goa-2026-${state.format}.png`, { type: 'image/png' });
+    const file = new File([blob], 'hh-goa-2026-builder-badge.png', { type: 'image/png' });
 
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       try { await navigator.share({ files: [file], text: caption }); return; }
