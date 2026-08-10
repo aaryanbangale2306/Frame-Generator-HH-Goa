@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>HH Goa 2026 — Builder ID Generator</title>
-<meta name="description" content="Turn your photo into a polished HH Goa 2026 builder ID card in seconds. No login, no signup — pure browser magic." />
+<title>HH Goa 2026 — Frame & ID Card Generator</title>
+<meta name="description" content="Turn your photo into a branded HH Goa 2026 profile frame or builder badge in seconds. No login, no signup — pure browser magic." />
 <meta property="og:title" content="I'm building at HH Goa 2026 🏝️" />
-<meta property="og:description" content="Generate your HH Goa 2026 builder ID card — #FrameInGoa" />
+<meta property="og:description" content="Generate your HH Goa 2026 builder badge or PFP frame — #FrameInGoa" />
 <meta property="og:image" content="og-fallback.png" />
 <meta property="og:type" content="website" />
 <meta name="twitter:card" content="summary_large_image" />
@@ -24,7 +24,7 @@
     <span class="wordmark-pill">2026</span>
   </a>
   <div class="topbar-right">
-    <span class="topbar-tag">ID Generator</span>
+    <span class="topbar-tag">Frame Generator</span>
     <span class="topbar-live">LIVE</span>
   </div>
 </header>
@@ -86,10 +86,34 @@
       <span class="steps-title">Build your graphic</span>
     </div>
 
-    <!-- Step 01 — Photo -->
+    <!-- Step 01 — Format -->
     <div class="step">
       <div class="step-head">
         <span class="step-num active" id="stepNum1">01</span>
+        <h2>Choose format</h2>
+      </div>
+      <div class="format-toggle" role="tablist" aria-label="Choose format">
+        <button class="format-btn" data-format="frame" role="tab" aria-selected="false" id="btnFrame">
+          <span class="format-btn-icon">🟣</span>
+          <span class="format-btn-title">PFP Frame</span>
+          <span class="format-btn-sub">Circular overlay · 1080×1080</span>
+          <span class="format-btn-check" aria-hidden="true">✓</span>
+        </button>
+        <button class="format-btn active" data-format="card" role="tab" aria-selected="true" id="btnCard">
+          <span class="format-btn-icon">🎫</span>
+          <span class="format-btn-title">Builder Badge</span>
+          <span class="format-btn-sub">ID card · 1080×1350</span>
+          <span class="format-btn-check" aria-hidden="true">✓</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="step-divider"></div>
+
+    <!-- Step 02 — Photo -->
+    <div class="step">
+      <div class="step-head">
+        <span class="step-num" id="stepNum2">02</span>
         <h2>Add your photo</h2>
       </div>
 
@@ -136,13 +160,12 @@
 
     <div class="step-divider"></div>
 
-    <!-- Step 02 — Details -->
+    <!-- Step 03 — Details (card only) -->
     <div class="step" id="fieldsStep">
       <div class="step-head">
-        <span class="step-num" id="stepNum2">02</span>
+        <span class="step-num" id="stepNum3">03</span>
         <h2>Builder details</h2>
       </div>
-      <p class="step-intro">Create a polished HH Goa 2026 builder ID card with a clean, judge-friendly layout.</p>
       <label class="field">
         <span class="field-label">Your name</span>
         <input type="text" id="nameInput" maxlength="28" placeholder="e.g. Aaryan Bangale" autocomplete="name" />
@@ -167,13 +190,13 @@
 
     <div class="preview-label">
       <span class="preview-label-text">Live Preview</span>
-      <span class="preview-format-badge" id="previewFormatBadge">ID CARD</span>
+      <span class="preview-format-badge" id="previewFormatBadge">BUILDER BADGE</span>
     </div>
 
     <div class="preview-stage">
       <div id="previewEmpty" class="preview-empty">
         <div class="preview-empty-icon">🏝️</div>
-        <p>Upload a photo and your details to reveal your official HH Goa 2026 builder ID.</p>
+        <p>Your graphic appears here the <strong>moment</strong> you add a photo.</p>
       </div>
       <canvas id="outputCanvas" width="1080" height="1350" hidden></canvas>
       <div id="renderBadge" class="render-badge" hidden>Ready</div>
