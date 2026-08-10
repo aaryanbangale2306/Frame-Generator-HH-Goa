@@ -4,72 +4,130 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>HH Goa 2026 — Frame & ID Card Generator</title>
-<meta name="description" content="Turn your photo into a branded HH Goa 2026 profile frame or builder badge in seconds. No login, no signup." />
-
-<!-- OG tags: point at a static fallback banner. True per-user OG previews need a tiny
-     server-side render step — see README §"On the link-preview requirement" for the plan. -->
-<meta property="og:title" content="I'm building at HH Goa 2026" />
-<meta property="og:description" content="Made with the HH Goa 2026 Frame Generator — #FrameInGoa" />
+<meta name="description" content="Turn your photo into a branded HH Goa 2026 profile frame or builder badge in seconds. No login, no signup — pure browser magic." />
+<meta property="og:title" content="I'm building at HH Goa 2026 🏝️" />
+<meta property="og:description" content="Generate your HH Goa 2026 builder badge or PFP frame — #FrameInGoa" />
 <meta property="og:image" content="og-fallback.png" />
 <meta property="og:type" content="website" />
 <meta name="twitter:card" content="summary_large_image" />
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<div class="bg-glow" aria-hidden="true"></div>
+<div class="bg-layer" aria-hidden="true"></div>
+<div class="bg-noise" aria-hidden="true"></div>
 
+<!-- ── Top Bar ── -->
 <header class="topbar">
-  <div class="wordmark">
-    <span class="wordmark-main">HH GOA</span><span class="wordmark-year">2026</span>
+  <a class="wordmark" href="/" aria-label="HH Goa 2026 Home">
+    <span class="wordmark-main">HH GOA</span>
+    <span class="wordmark-pill">2026</span>
+  </a>
+  <div class="topbar-right">
+    <span class="topbar-tag">Frame Generator</span>
+    <span class="topbar-live">LIVE</span>
   </div>
-  <span class="topbar-tag">FRAME GENERATOR</span>
 </header>
 
-<aside class="announcement-banner" aria-label="Announcement">
-  <div class="banner-content">
-    <span class="banner-badge">TASK 01 LIVE</span>
-    <span class="banner-text">TownHall 01 Recap & Task 01 are now open!</span>
-    <div class="banner-links">
-      <a href="https://x.com/247pmstudio/status/2085808582008971691" target="_blank" rel="noopener" class="banner-link banner-link--highlight">Task 01 ↗</a>
+<!-- ── Announcement Ticker ── -->
+<aside class="announcement-banner" aria-label="Announcements">
+  <div class="banner-scroll" aria-hidden="true">
+    <!-- First copy -->
+    <span class="banner-item">
+      <span class="banner-badge">TASK 01</span>
+      <span class="banner-text">Task 01 is now live!</span>
+      <a href="https://x.com/247pmstudio/status/2085808582008971691" target="_blank" rel="noopener" class="banner-link">View Task 01 ↗</a>
+    </span>
+    <span class="banner-item">
+      <span class="banner-badge">TOWNHALL 01</span>
+      <span class="banner-text">Read the full recap — all your questions answered</span>
       <a href="https://x.com/247pmstudio/status/2085776163709104592" target="_blank" rel="noopener" class="banner-link">TownHall 01 Recap ↗</a>
-      <a href="https://www.instagram.com/247pmstudio" target="_blank" rel="noopener" class="banner-link">Instagram ↗</a>
-    </div>
+    </span>
+    <span class="banner-item">
+      <span class="banner-badge banner-badge--gold">INSTAGRAM</span>
+      <span class="banner-text">Surprise awaits — follow for big announcements!</span>
+      <a href="https://www.instagram.com/247pmstudio" target="_blank" rel="noopener" class="banner-link">@247pmstudio ↗</a>
+    </span>
+    <span class="banner-item">
+      <span class="banner-badge">GOA</span>
+      <span class="banner-text">HH Goa 2026 · 28–31 Oct · Goa, India</span>
+      <a href="https://hh-goa-2026-generator-rho.vercel.app" target="_blank" rel="noopener" class="banner-link">Live Tool ↗</a>
+    </span>
+    <!-- Duplicate for seamless loop -->
+    <span class="banner-item">
+      <span class="banner-badge">TASK 01</span>
+      <span class="banner-text">Task 01 is now live!</span>
+      <a href="https://x.com/247pmstudio/status/2085808582008971691" target="_blank" rel="noopener" class="banner-link">View Task 01 ↗</a>
+    </span>
+    <span class="banner-item">
+      <span class="banner-badge">TOWNHALL 01</span>
+      <span class="banner-text">Read the full recap — all your questions answered</span>
+      <a href="https://x.com/247pmstudio/status/2085776163709104592" target="_blank" rel="noopener" class="banner-link">TownHall 01 Recap ↗</a>
+    </span>
+    <span class="banner-item">
+      <span class="banner-badge banner-badge--gold">INSTAGRAM</span>
+      <span class="banner-text">Surprise awaits — follow for big announcements!</span>
+      <a href="https://www.instagram.com/247pmstudio" target="_blank" rel="noopener" class="banner-link">@247pmstudio ↗</a>
+    </span>
+    <span class="banner-item">
+      <span class="banner-badge">GOA</span>
+      <span class="banner-text">HH Goa 2026 · 28–31 Oct · Goa, India</span>
+      <a href="https://hh-goa-2026-generator-rho.vercel.app" target="_blank" rel="noopener" class="banner-link">Live Tool ↗</a>
+    </span>
   </div>
 </aside>
 
 <main class="layout">
 
-  <!-- ============ LEFT / CONTROLS ============ -->
+  <!-- ══ LEFT — Controls ══ -->
   <section class="panel controls" aria-label="Customize your graphic">
 
+    <div class="steps-header">
+      <span class="steps-title">Build your graphic</span>
+    </div>
+
+    <!-- Step 01 — Format -->
     <div class="step">
-      <div class="step-head"><span class="step-num">01</span><h2>Format</h2></div>
+      <div class="step-head">
+        <span class="step-num active" id="stepNum1">01</span>
+        <h2>Choose format</h2>
+      </div>
       <div class="format-toggle" role="tablist" aria-label="Choose format">
-        <button class="format-btn" data-format="frame" role="tab" aria-selected="false">
+        <button class="format-btn" data-format="frame" role="tab" aria-selected="false" id="btnFrame">
+          <span class="format-btn-icon">🟣</span>
           <span class="format-btn-title">PFP Frame</span>
-          <span class="format-btn-sub">Circular overlay for X</span>
+          <span class="format-btn-sub">Circular overlay · 1080×1080</span>
+          <span class="format-btn-check" aria-hidden="true">✓</span>
         </button>
-        <button class="format-btn active" data-format="card" role="tab" aria-selected="true">
+        <button class="format-btn active" data-format="card" role="tab" aria-selected="true" id="btnCard">
+          <span class="format-btn-icon">🎫</span>
           <span class="format-btn-title">Builder Badge</span>
-          <span class="format-btn-sub">Name + role card</span>
+          <span class="format-btn-sub">ID card · 1080×1350</span>
+          <span class="format-btn-check" aria-hidden="true">✓</span>
         </button>
       </div>
     </div>
 
-    <div class="step">
-      <div class="step-head"><span class="step-num">02</span><h2>Photo</h2></div>
+    <div class="step-divider"></div>
 
-      <div id="dropzone" class="dropzone">
+    <!-- Step 02 — Photo -->
+    <div class="step">
+      <div class="step-head">
+        <span class="step-num" id="stepNum2">02</span>
+        <h2>Add your photo</h2>
+      </div>
+
+      <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="Upload your photo">
         <input type="file" id="fileInput" accept="image/*,.heic,.heif" hidden />
         <div id="dropzoneEmpty" class="dropzone-empty">
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 16V4M12 4L7 9M12 4l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-          <p><strong>Tap to upload</strong> or drag a photo here</p>
-          <span class="dropzone-hint">JPG, PNG, HEIC · works in any crop or angle</span>
+          <div class="dropzone-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 16V4M12 4L7 9M12 4l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <p><strong>Tap to upload</strong> or drag &amp; drop</p>
+          <span class="dropzone-hint">JPG · PNG · HEIC · any size</span>
           <div class="sample-photo-option">
             <button type="button" id="samplePhotoBtn" class="btn-sample">Try with sample photo</button>
           </div>
@@ -87,52 +145,75 @@
         </div>
         <div class="crop-controls">
           <label class="zoom-label" for="zoomSlider">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.6"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-            Zoom
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+            ZOOM
           </label>
           <input type="range" id="zoomSlider" min="1" max="3" step="0.01" value="1" />
-          <button id="changePhotoBtn" class="link-btn" type="button">Replace photo</button>
+          <button id="changePhotoBtn" class="link-btn" type="button">Replace</button>
         </div>
-        <p class="crop-hint">Drag the photo to reposition · pinch or scroll to zoom</p>
+        <p class="crop-hint">Drag · Pinch or scroll to zoom</p>
       </div>
     </div>
 
+    <div class="step-divider"></div>
+
+    <!-- Step 03 — Details (card only) -->
     <div class="step" id="fieldsStep">
-      <div class="step-head"><span class="step-num">03</span><h2>Builder details</h2></div>
+      <div class="step-head">
+        <span class="step-num" id="stepNum3">03</span>
+        <h2>Builder details</h2>
+      </div>
       <label class="field">
-        <span>Name</span>
-        <input type="text" id="nameInput" maxlength="28" value="Arham Boonlia" placeholder="e.g. Arham Boonlia" autocomplete="name" />
+        <span class="field-label">Your name</span>
+        <input type="text" id="nameInput" maxlength="28" placeholder="e.g. Aaryan Bangale" autocomplete="name" />
       </label>
       <label class="field">
-        <span>Stack / role</span>
-        <input type="text" id="roleInput" maxlength="30" value="Full-stack" placeholder="e.g. Full-stack, AI/ML, Design" />
+        <span class="field-label">Stack / role</span>
+        <input type="text" id="roleInput" maxlength="32" placeholder="e.g. Full-stack, AI/ML, Design" />
       </label>
       <div class="field">
-        <span>Builder title <button id="shuffleTitleBtn" class="link-btn link-btn--inline" type="button" aria-label="Generate another title">shuffle ↻</button></span>
+        <span class="field-label">
+          Builder title
+          <button id="shuffleTitleBtn" class="link-btn link-btn--inline" type="button" aria-label="Shuffle title">↻ shuffle</button>
+        </span>
         <div id="titlePreview" class="title-preview">Add your role to generate one</div>
       </div>
     </div>
 
   </section>
 
-  <!-- ============ RIGHT / PREVIEW ============ -->
+  <!-- ══ RIGHT — Preview ══ -->
   <section class="panel preview" aria-label="Result preview">
+
+    <div class="preview-label">
+      <span class="preview-label-text">Live Preview</span>
+      <span class="preview-format-badge" id="previewFormatBadge">BUILDER BADGE</span>
+    </div>
+
     <div class="preview-stage">
       <div id="previewEmpty" class="preview-empty">
-        <div class="preview-empty-badge">HH·26</div>
-        <p>Your graphic appears here the moment you add a photo.</p>
+        <div class="preview-empty-icon">🏝️</div>
+        <p>Your graphic appears here the <strong>moment</strong> you add a photo.</p>
       </div>
-      <canvas id="outputCanvas" width="1080" height="1080" hidden></canvas>
+      <canvas id="outputCanvas" width="1080" height="1350" hidden></canvas>
       <div id="renderBadge" class="render-badge" hidden>Ready</div>
     </div>
 
     <div class="actions" id="actions" hidden>
       <button id="downloadBtn" class="btn btn-primary" type="button">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 15V3M12 15l-4-4M12 15l4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 19h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        Download image
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 15V3M12 15l-4-4M12 15l4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M5 19h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Download PNG
       </button>
       <button id="shareBtn" class="btn btn-secondary" type="button">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12L20 4l-5 16-4-7-7-1z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 12L20 4l-5 16-4-7-7-1z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+        </svg>
         Share to X
       </button>
     </div>
