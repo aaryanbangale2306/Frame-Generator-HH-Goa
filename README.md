@@ -8,29 +8,34 @@ Create a polished, presentation-ready builder ID card for Hacker House Goa 2026 
 
 </div>
 
-## What it does
+## How it works
 
-This project lets you upload a photo, add your name and role, and generate a clean builder ID card directly in the browser.
+<table>
+  <tr>
+    <td valign="top">
+      <ol>
+        <li>Upload your photo</li>
+        <li>Adjust crop and zoom</li>
+        <li>Enter your name, role, and title</li>
+        <li>Download the final ID card</li>
+      </ol>
+    </td>
+    <td valign="top">
+      <img src="screenshots/landing.png" alt="Landing view of the HH Goa 2026 builder ID card generator" width="100%" style="border-radius: 12px;" />
+    </td>
+  </tr>
+</table>
 
-### Features
-- Upload JPG, PNG, or HEIC images
-- Drag, zoom, and reposition the photo
-- Generate a premium preview in real time
-- Download the final card as a PNG
+## Gallery
 
-## Screenshots
+### Upload and preview
+<img src="screenshots/controls.png" alt="Builder details form and live preview" width="100%" style="border-radius: 12px; margin-top: 8px;" />
 
-### 1. Landing experience
-<img src="screenshots/landing.png" alt="Landing page for the ID card generator" width="100%" />
+### Crop and position your photo
+<img src="screenshots/crop-preview.png" alt="Photo crop and zoom controls" width="100%" style="border-radius: 12px; margin-top: 12px;" />
 
-### 2. Photo controls
-<img src="screenshots/crop-preview.png" alt="Crop and zoom controls for the uploaded photo" width="100%" />
-
-### 3. Builder details
-<img src="screenshots/controls.png" alt="Form showing name, role, and title input" width="100%" />
-
-### 4. Final card preview
-<img src="screenshots/builder-badge.png" alt="Final presentation-ready builder ID card" width="100%" />
+### Final presentation-ready card
+<img src="screenshots/builder-badge.png" alt="Generated HH Goa 2026 builder ID card" width="100%" style="border-radius: 12px; margin-top: 12px;" />
 
 ## Run locally
 
